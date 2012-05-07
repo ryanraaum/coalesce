@@ -13,7 +13,7 @@ end
 function nodes_array(n::Integer)
     nodes = Array(Node, n)
     for i = 1:n
-        nodes[i] = Node((), (), (), 0.0)
+        nodes[i] = Node("$(i)", (), (), (), 0.0)
     end
     nodes
 end
@@ -25,7 +25,7 @@ function increment_time!(nodes::Array{Node}, time::Float64)
 end
 
 function merge_nodes(nodes::Array{Node}, n1::Integer, n2::Integer)
-    parent = Node(nodes[n1], nodes[n2], (), 0.0)
+    parent = Node("", nodes[n1], nodes[n2], (), 0.0)
     nodes[n1].ancestor = parent
     nodes[n2].ancestor = parent
     [ parent, nodes[1:(min(n1,n2)-1)], nodes[(min(n1,n2)+1):(max(n1,n2)-1)], nodes[(max(n1,n2)+1):end] ]
