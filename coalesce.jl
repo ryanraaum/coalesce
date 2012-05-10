@@ -5,7 +5,6 @@ libRmath = dlopen("libRmath")
 rexp(rate::Float64) = ccall(dlsym(libRmath, :rexp), Float64, (Int64, Float64), 1, 1.0/rate)
 set_seed(a1::Integer, a2::Integer) = ccall(dlsym(libRmath,:set_seed),Void,(Int32,Int32), a1, a2)
 
-
 function choose(n::Integer, k::Integer)
     factorial(n)/(factorial(k)*factorial(n-k))
 end
@@ -40,18 +39,30 @@ function rand2i(n::Integer)
     (i1, i2)
 end
 
-function simple_coalesce(k::Integer, seed1::Integer, seed2::Integer)
-    set_seed(seed1, seed2)
-    srand(seed1 + seed2)
-    nodes = nodes_array(k)
-    while length(nodes) > 1
-        waiting_time = rexp(choose(k, 2))
-        increment_time!(nodes, waiting_time)
+function simple_waiting_times(k::Integer)
+    [ rexp(choose(i, 2)) for i in reverse(2:k) ] 
+end
+
+function exponential_waiting_times(k::Integer, beta::Float)
+    simple_times = simple_waiting_times(k)
+    exp_times = zeros(Float64, length(simple_times))
+    for i = 1:length(simple_times)
+        vkp1 = sum(exp_times[1:(i-1)])
+        exp_times[i] = (1/beta)*log(1 + beta*simple_times[i]*exp(-beta*vkp1))
+    end
+    exp_times
+end
+
+function coalesce(wt::Array{Float64})
+    nodes = nodes_array(length(wt)+1)
+    for t in wt
+        increment_time!(nodes, t)
         js = rand2i(length(nodes))    
         nodes = merge_nodes(nodes, js[1], js[2])
     end
     nodes[1]
 end
-simple_coalesce(k::Integer) = simple_coalesce(k, 1, 2)
 
-println(simple_coalesce(5))
+println(coalesce(simple_waiting_times(5)))
+println(coalesce(exponential_waiting_times(5, 1000.0)))
+

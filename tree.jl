@@ -13,15 +13,20 @@ isroot(n::Node) = is((), n.ancestor)
 
 function to_newick(n::Node)
     if istip(n)
-        "$(n.name):$(string(n.time)[1:6])"
+        time = string(n.time)
+        time = time[1:min(6, length(time))]
+        "$(n.name):$(time)"
     elseif isroot(n)
         "($(to_newick(n.left)),$(to_newick(n.right)));"
     else
-        "($(to_newick(n.left)),$(to_newick(n.right)))$(n.name):$(string(n.time)[1:6])"
+        time = string(n.time)
+        time = time[1:min(6, length(time))]
+        "($(to_newick(n.left)),$(to_newick(n.right)))$(n.name):$(time)"
     end
 end
 
-show(n::Node) = print(to_newick(n))
+show(io, n::Node) = print(io, to_newick(n))
+#print(n::Node) = print(to_newick(n))
 
 if test
 
