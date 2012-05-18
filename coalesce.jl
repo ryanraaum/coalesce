@@ -2,8 +2,11 @@ load("tree.jl")
 
 libRmath = dlopen("libRmath")
 
-rexp(rate::Float64) = ccall(dlsym(libRmath, :rexp), Float64, (Int64, Float64), 1, 1.0/rate)
-set_seed(a1::Integer, a2::Integer) = ccall(dlsym(libRmath,:set_seed),Void,(Int32,Int32), a1, a2)
+rexp(rate::Float64) = ccall(dlsym(libRmath, :rexp), Float64, 
+                            (Int64, Float64), 1, 1.0/rate)
+
+set_seed(a1::Integer, a2::Integer) = ccall(dlsym(libRmath,:set_seed), 
+                                           Void, (Int32,Int32), a1, a2)
 
 function choose(n::Integer, k::Integer)
   factorial(n)/(factorial(k)*factorial(n-k))
@@ -27,7 +30,10 @@ function merge_nodes(nodes::Array{Node}, n1::Integer, n2::Integer)
   parent = Node("", nodes[n1], nodes[n2], (), 0.0)
   nodes[n1].ancestor = parent
   nodes[n2].ancestor = parent
-  [ parent, nodes[1:(min(n1,n2)-1)], nodes[(min(n1,n2)+1):(max(n1,n2)-1)], nodes[(max(n1,n2)+1):end] ]
+  [ parent, 
+    nodes[1:(min(n1,n2)-1)], 
+    nodes[(min(n1,n2)+1):(max(n1,n2)-1)], 
+    nodes[(max(n1,n2)+1):end] ]
 end
 
 function rand2i(n::Integer)
